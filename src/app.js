@@ -9,11 +9,15 @@ dotenv.config({
 const app = express();
 
 mongodb()
-.then(()=> console.log("coneected"))
+.then(()=> {
+    console.log("connected");
+    app.listen(7777 , ()=>{
+    console.log("app is litening");
+})
+
+})
 .catch((err)=>console.log(err));
 
 
-app.listen(7777 , ()=>{
-    console.log("app is litening");
-})
+
 
