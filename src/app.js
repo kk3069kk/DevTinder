@@ -48,6 +48,39 @@ app.get("/getalluser" , async (req,res)=>{
     }
 })
 
+app.delete("/user" , async (req,res)=>{
+    const userId = req.body.userId;
+
+    try {
+          const user = await User.findByIdAndDelete(userId);
+          res.send("user deleted succesfully");
+    } catch (error) {
+        res.status(401).send("something went wrong");
+    }
+})
+
+app.patch("/user/:userId" , async (req,res)=>{
+    const userID = req.params?.userId;
+    const data = req.body;
+
+    try {
+    const allowedToUpdate = [
+        "gender",
+        "age",
+    ]
+    const isUpdateAllowed = Object.keys(data).every((k)=>
+      allowedToUpdate.includes(k)
+    )
+    if(!isUpdateAllowed){
+        throw new Error("update not allowd");
+    }
+        await User.findByIdAndUpdate({_id:userID},data,{new:true, runValidators:true});
+        res.send("updated successfully");
+    } catch (error) {
+        res.status(401).send("something went wrong"+ error.message);
+    }
+})
+
 mongodb()
 .then(()=> {
     console.log("connected");
