@@ -1,6 +1,8 @@
 import express from "express";
 import mongodb from "./config/database.js";
 import User from "./models/user.model.js";
+import { validation } from "./utils/validation.js";
+import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -11,15 +13,52 @@ const app = express();
 app.use(express.json());
 
 app.post("/signup" , async (req,res)=>{
-    
-    const user = new User(req.body);
     try {
+
+    validation(req);
+    
+    const {firstName,lastName,emailId,password} = req.body;
+    
+    const hashPassword = await bcrypt.hash(password,10);
+    const user = new User({
+        firstName,
+        lastName,
+        emailId,
+        password:hashPassword,
+
+    });
+
         await user.save();
         res.send("Success");
     } catch (error) {
         res.status(401).send("ERROR" + error);
     }
 
+})
+
+app.post("/login", async (req,res)=>{
+    try {
+        const {emailId , password} = req.body;
+        
+        if(!emailId|| !password) throw new Error("the given fields are required");
+        
+        const user = await User
+        .findOne({emailId:emailId})
+        .select("+password");
+
+        if(!user) throw new Error("INvalid Credentials");
+       
+        const checkPassword = await bcrypt.compare(password,user.password);
+        if(checkPassword){
+            res.send("Login successfully");
+        }
+        else{
+            throw new Error("Invalid Credential")
+        }
+
+    } catch (error) {
+        res.status(401).send("Error:" + error.message);
+    }
 })
 
 app.get("/user" , async (req,res)=>{

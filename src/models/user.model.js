@@ -4,8 +4,11 @@ import validator from 'validator';
 const userSchema = new mongoose.Schema({
     firstName:{
         type:String,
-        required:true,
+        required:[true,"First name is require"],
         trim:true,
+        maxlength:15,
+        minlength:4,
+
     },
     lastName:{
         type:String,
