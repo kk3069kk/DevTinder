@@ -2,7 +2,9 @@ import express from "express";
 import mongodb from "./config/database.js";
 import User from "./models/user.model.js";
 import { validation } from "./utils/validation.js";
+import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config({
@@ -11,6 +13,7 @@ dotenv.config({
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup" , async (req,res)=>{
     try {
@@ -41,7 +44,7 @@ app.post("/login", async (req,res)=>{
         const {emailId , password} = req.body;
         
         if(!emailId|| !password) throw new Error("the given fields are required");
-        
+
         const user = await User
         .findOne({emailId:emailId})
         .select("+password");
@@ -50,6 +53,10 @@ app.post("/login", async (req,res)=>{
        
         const checkPassword = await bcrypt.compare(password,user.password);
         if(checkPassword){
+
+            const token = await jwt.sign({_id:user._id},process.env.JWT_SECRET);
+            
+            res.cookie("token",token);
             res.send("Login successfully");
         }
         else{
@@ -59,6 +66,24 @@ app.post("/login", async (req,res)=>{
     } catch (error) {
         res.status(401).send("Error:" + error.message);
     }
+})
+
+app.get("/profile" , async(req,res)=>{
+   try {
+     const {token} = req.cookies;
+    if(!token) throw new Error("Please Login");
+
+    const decodedid = jwt.verify(token,process.env.JWT_SECRET);
+    const {_id} = decodedid;
+    const user = await User.findById(_id);
+
+    if(!user) throw new Error("user not found");
+    res.send(user);
+
+   } catch (error) {
+    res.send("error:" + error.message);
+   }
+    
 })
 
 app.get("/user" , async (req,res)=>{
