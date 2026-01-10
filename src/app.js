@@ -5,7 +5,9 @@ import { validation } from "./utils/validation.js";
 import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { userauth } from "./Middleware/auth.js";
 import dotenv from "dotenv";
+
 
 dotenv.config({
     path:'./env'
@@ -51,12 +53,16 @@ app.post("/login", async (req,res)=>{
 
         if(!user) throw new Error("INvalid Credentials");
        
-        const checkPassword = await bcrypt.compare(password,user.password);
+        const checkPassword = await user.isPasswordValid(password);
+        
         if(checkPassword){
 
-            const token = await jwt.sign({_id:user._id},process.env.JWT_SECRET);
+            const token =  await user.getJwt();
             
-            res.cookie("token",token);
+            res.cookie("token",token,{
+                http:true,
+                maxAge:new Date(Date.now() + 24*60*60*1000)
+            });
             res.send("Login successfully");
         }
         else{
@@ -68,16 +74,10 @@ app.post("/login", async (req,res)=>{
     }
 })
 
-app.get("/profile" , async(req,res)=>{
+app.get("/profile" ,userauth, async(req,res)=>{
    try {
-     const {token} = req.cookies;
-    if(!token) throw new Error("Please Login");
-
-    const decodedid = jwt.verify(token,process.env.JWT_SECRET);
-    const {_id} = decodedid;
-    const user = await User.findById(_id);
-
-    if(!user) throw new Error("user not found");
+    
+    const user =  req.user;
     res.send(user);
 
    } catch (error) {
