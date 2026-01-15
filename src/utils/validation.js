@@ -8,3 +8,18 @@ export const validation = (req)=>{
    if(!validator.isStrongPassword(password)) throw new Error("give correct password");
 }
 
+export const validateProfileEdit = (req)=>{
+   const allowed = [
+      "lastName",
+      "age",
+      "gender",
+      "photoURL",
+      "skills",
+      "about",
+   ]
+
+   const isUpdateAllowed = Object.keys(req.body).every((field)=>
+    allowed.includes(field));
+
+   return isUpdateAllowed;
+}

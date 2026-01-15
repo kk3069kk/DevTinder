@@ -52,7 +52,14 @@ const userSchema = new mongoose.Schema({
                 throw new Error("give correct Photo URL"); 
             }
         }
+    },
+    skills:{
+        type:[String],
+    },
+    about:{
+        type:String,
     }
+
 
 },{
     timestamps:true
