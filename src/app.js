@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRouter from "./Routes/auth.js";
 import profileRouter from "./Routes/profile.js";
 import requestRouter from "./Routes/request.js";
+import userRouter from "./Routes/user.js";
 
 dotenv.config({
     path:'./env'
@@ -18,6 +19,7 @@ app.use(cookieParser());
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouter);
+app.use("/",userRouter);
 
 mongodb()
 .then(()=> {
