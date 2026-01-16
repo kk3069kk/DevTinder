@@ -11,7 +11,7 @@ export const userauth = async (req,res,next)=>{
     const decoded = jwt.verify(token,process.env.JWT_SECRET);
     const {_id} = decoded;
 
-    const user  = await User.findById(_id);
+    const user  = await User.findById(_id).select("+password");
     if(!user) throw new Error("user not found");
 
     req.user = user;

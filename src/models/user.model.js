@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import validator from 'validator';
 import jwt from "jsonwebtoken";
-import bcypt from "bcrypt";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     firstName:{
         type:String,
         required:[true,"First name is require"],
+        index:true,
         trim:true,
         maxlength:15,
         minlength:4,
@@ -78,7 +79,7 @@ userSchema.methods.getJwt = async function(){
 userSchema.methods.isPasswordValid = async function (password) {
     const user = this;
 
-    const validity = await bcypt.compare(password,user.password);
+    const validity = await bcrypt.compare(password,user.password);
     return validity;
 }
 
