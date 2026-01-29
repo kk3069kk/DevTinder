@@ -50,7 +50,7 @@ authRouter.post("/login", async (req,res)=>{
                 http:true,
                 maxAge:new Date(Date.now() + 24*60*60*1000)
             });
-            res.send("Login successfully");
+            res.send(user);
         }
         else{
             throw new Error("Invalid Credential")
