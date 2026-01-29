@@ -4,55 +4,55 @@ import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 const authRouter = express.Router();
 
-authRouter.post("/signup" , async (req,res)=>{
+authRouter.post("/signup", async (req, res) => {
     try {
 
-    validation(req);
-    
-    const {firstName,lastName,emailId,password} = req.body;
-    
-    const hashPassword = await bcrypt.hash(password,10);
-    const user = new User({
-        firstName,
-        lastName,
-        emailId,
-        password:hashPassword,
+        validation(req);
 
-    });
+        const { firstName, lastName, emailId, password } = req.body;
+
+        const hashPassword = await bcrypt.hash(password, 10);
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: hashPassword,
+
+        });
 
         await user.save();
         res.send("Success");
     } catch (error) {
-        res.status(401).send("ERROR" + error);
+        res.status(400).send("ERROR: " + error.message);
     }
 
 })
 
-authRouter.post("/login", async (req,res)=>{
+authRouter.post("/login", async (req, res) => {
     try {
-        const {emailId , password} = req.body;
-        
-        if(!emailId|| !password) throw new Error("the given fields are required");
+        const { emailId, password } = req.body;
+
+        if (!emailId || !password) throw new Error("the given fields are required");
 
         const user = await User
-        .findOne({emailId:emailId})
-        .select("+password");
+            .findOne({ emailId: emailId })
+            .select("+password");
 
-        if(!user) throw new Error("INvalid Credentials");
-       
+        if (!user) throw new Error("INvalid Credentials");
+
         const checkPassword = await user.isPasswordValid(password);
 
-        if(checkPassword){
+        if (checkPassword) {
 
-            const token =  await user.getJwt();
-            
-            res.cookie("token",token,{
-                http:true,
-                maxAge:new Date(Date.now() + 24*60*60*1000)
+            const token = await user.getJwt();
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
             });
             res.send(user);
         }
-        else{
+        else {
             throw new Error("Invalid Credential")
         }
 
@@ -61,8 +61,8 @@ authRouter.post("/login", async (req,res)=>{
     }
 })
 
-authRouter.post("/logout", async (req,res)=>{
-    res.cookie("token",null,{
+authRouter.post("/logout", async (req, res) => {
+    res.cookie("token", null, {
         expires: new Date(Date.now())
     })
     res.send("logout Successfully");

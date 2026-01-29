@@ -1,30 +1,30 @@
 import express from "express";
 const requestRouter = express.Router();
-import {userauth} from "../Middleware/auth.js"
+import { userauth } from "../Middleware/auth.js"
 import ConnectionRequest from "../models/connectionRequest.model.js";
 import User from "../models/user.model.js";
 
-requestRouter.post("/request/send/:status/:userId",userauth,async(req,res)=>{
+requestRouter.post("/request/send/:status/:userId", userauth, async (req, res) => {
     try {
-        const fromUserId= req.user._id;
+        const fromUserId = req.user._id;
         const toUserId = req.params.userId;
         const status = req.params.status;
 
-        const allowedStatus = ["ignored" , "interested"];
+        const allowedStatus = ["ignored", "interested"];
 
-        if(!allowedStatus.includes(status)){
-           return res.status(400).send("invalid status type" + status);
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).send("invalid status type" + status);
         }
         const toUser = await User.findById(toUserId);
-        if(!toUser) throw new Error("invalid user");
+        if (!toUser) throw new Error("invalid user");
 
         const existingConnectionRequest = await ConnectionRequest.findOne({
-            $or:[
-                {fromUserId,toUserId},
-                {fromUserId:toUserId , toUserId:fromUserId}
+            $or: [
+                { fromUserId, toUserId },
+                { fromUserId: toUserId, toUserId: fromUserId }
             ]
         })
-        if(existingConnectionRequest){
+        if (existingConnectionRequest) {
             throw new Error("already existed");
         }
 
@@ -37,29 +37,29 @@ requestRouter.post("/request/send/:status/:userId",userauth,async(req,res)=>{
         const data = await connection.save();
 
         res.json({
-            message:"connection send succesfully",
+            message: "connection send successfully",
             data
         })
     } catch (error) {
-        res.send("Error:"+error.message);
+        res.status(400).send("Error:" + error.message);
     }
 })
 
-requestRouter.post("/request/review/:status/:requestId",userauth,async(req,res)=>{
+requestRouter.post("/request/review/:status/:requestId", userauth, async (req, res) => {
     try {
-        const user =req.user;
-        const {status,requestId} = req.params;
+        const user = req.user;
+        const { status, requestId } = req.params;
 
-        const allowedStatus = ["accepted","rejected"];
-        if(!allowedStatus.includes(status)){
+        const allowedStatus = ["accepted", "rejected"];
+        if (!allowedStatus.includes(status)) {
             throw new Error("invalid status");
         }
         const connection = await ConnectionRequest.findOne({
-            _id:requestId,
-            toUserId:user._id,
-            status:"interested"
+            _id: requestId,
+            toUserId: user._id,
+            status: "interested"
         })
-        if(!connection){
+        if (!connection) {
             throw new Error("no connection present");
         }
 
@@ -67,12 +67,12 @@ requestRouter.post("/request/review/:status/:requestId",userauth,async(req,res)=
         const data = await connection.save();
 
         res.json({
-            message:"successfull",
+            message: "Connection request " + status + " successfully",
             data
         })
 
     } catch (error) {
-        res.status(400).send("Error:"+error.message);
+        res.status(400).send("Error:" + error.message);
     }
 })
 export default requestRouter;
