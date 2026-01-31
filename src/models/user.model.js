@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
     },
     age: {
         type: Number,
+        
     },
     password: {
         type: String,
@@ -45,6 +46,7 @@ const userSchema = new mongoose.Schema({
                 throw new Error("give valid data");
             }
         },
+        
     },
     photoURL: {
         type: String,
@@ -52,13 +54,16 @@ const userSchema = new mongoose.Schema({
             if (!validator.isURL(value)) {
                 throw new Error("give correct Photo URL");
             }
-        }
+        },
+        default:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNubLmqdOK9pZWU-2IiD20cuSIdUUDi9-NvQ&s",
     },
     skills: {
         type: [String],
+        
     },
     about: {
         type: String,
+        
     }
 
 
