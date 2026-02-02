@@ -13,7 +13,7 @@ userRouter.get("/user/request/received", userauth, async (req, res) => {
       toUserId: user._id,
       status: "interested"
     }).populate("fromUserId",
-      "firstName lastName gender age skills about"
+      "firstName lastName gender age skills about photoURL"
     )
 
     res.json({
@@ -37,9 +37,9 @@ userRouter.get("/user/connection", userauth, async (req, res) => {
         { toUserId: user._id, status: "accepted" }
       ]
     }).populate("fromUserId",
-      "firstName lastName gender age skills about"
+      "firstName lastName gender age skills about photoURL"
     ).populate("toUserId",
-      "firstName lastName gender age skills about"
+      "firstName lastName gender age skills about photoURL"
     )
 
     const data = connectedUser.map((row) => {
