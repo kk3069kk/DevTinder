@@ -7,6 +7,9 @@ import authRouter from "./Routes/auth.js";
 import profileRouter from "./Routes/profile.js";
 import requestRouter from "./Routes/request.js";
 import userRouter from "./Routes/user.js";
+import http from "http";
+import initializeSocket from "./utils/socket.js";
+
 
 
 
@@ -18,6 +21,9 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
@@ -26,8 +32,8 @@ app.use("/", userRouter);
 mongodb()
     .then(() => {
         console.log("connected");
-        app.listen(7777, () => {
-            console.log("app is listening");
+        server.listen(process.env.PORT, () => {
+            console.log(`app is listening on port ${process.env.PORT}`);
         })
 
     })
