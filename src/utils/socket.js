@@ -1,4 +1,11 @@
 import { Server } from "socket.io";
+import crypto from "crypto";
+
+const getHash = (chatId,userId)=>{
+  return crypto.createHash("sha256")
+  .update([chatId,userId].sort().join("_"))
+  .digest("hex")
+}
 
 const initializeSocket = (server) => {
 
@@ -10,9 +17,17 @@ const initializeSocket = (server) => {
     });
 
     io.on("connection", (socket) => {
-       socket.on("joinChat",(data)=>{
+       socket.on("joinChat",({firstName,chatId,userId})=>{
+
+        const roomId = getHash(chatId,userId);
+        console.log(firstName +roomId);
+        socket.join(roomId);
+        
        })
-       socket.on("sendMessage",(data)=>{
+       socket.on("sendMessage",({firstName,chatId,userId,text})=>{
+            const roomId = getHash(chatId,userId);
+            console.log(firstName +"->"+text);
+            io.to(roomId).emit("messageRecieved", {firstName,text} );
        })
        socket.on("disconnect",()=>{
        })
