@@ -29,6 +29,7 @@ authRouter.post("/signup", async (req, res) => {
             });
         res.json({message:"message send successfully",
                  data:savedUser,
+                 token:token
             });
     } catch (error) {
         res.status(400).send("ERROR: " + error.message);
@@ -58,7 +59,10 @@ authRouter.post("/login", async (req, res) => {
                 httpOnly: true,
                 expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
             });
-            res.send(user);
+            res.json({
+                data:user,
+                token:token
+            })
         }
         else {
             throw new Error("Invalid Credential")
