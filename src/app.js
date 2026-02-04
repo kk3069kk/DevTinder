@@ -1,10 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import mongodb from "./config/database.js";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import cors from "cors";
-
-dotenv.config();
 
 import authRouter from "./Routes/auth.js";
 import profileRouter from "./Routes/profile.js";
