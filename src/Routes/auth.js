@@ -28,7 +28,7 @@ authRouter.post("/signup", async (req, res) => {
                 expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
             });
         res.json({message:"message send successfully",
-                 data:savedUser,
+                 user:savedUser,
                  token:token
             });
     } catch (error) {
@@ -60,7 +60,7 @@ authRouter.post("/login", async (req, res) => {
                 expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
             });
             res.json({
-                data:user,
+                user:user,
                 token:token
             })
         }
