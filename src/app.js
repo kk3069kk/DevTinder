@@ -12,6 +12,7 @@ import requestRouter from "./Routes/request.js";
 import userRouter from "./Routes/user.js";
 import http from "http";
 import initializeSocket from "./utils/socket.js";
+import chatRouter from "./Routes/chat.js";
 
 
 
@@ -31,6 +32,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter);
 
 mongodb()
     .then(() => {

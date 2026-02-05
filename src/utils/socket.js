@@ -1,5 +1,7 @@
 import { Server } from "socket.io";
 import crypto from "crypto";
+import Chat from "../models/chat.model.js";
+
 
 const getHash = (chatId,userId)=>{
   return crypto.createHash("sha256")
@@ -24,10 +26,32 @@ const initializeSocket = (server) => {
         socket.join(roomId);
         
        })
-       socket.on("sendMessage",({firstName,chatId,userId,text})=>{
+       socket.on("sendMessage",async ({firstName,chatId,userId,text})=>{
+           try {
             const roomId = getHash(chatId,userId);
-            console.log(firstName +"->"+text);
+            
+
+            let chat = await Chat.findOne({
+                participants: {$all: [chatId,userId]}
+            });
+            if(!chat){
+                chat = new Chat({
+                    participants:[chatId,userId],
+                    messages:[]
+                });
+            }
+            const newMessage = {
+                senderId: userId,
+                text,
+            }
+            chat.messages.push(newMessage);
+            await chat.save();
+            
             io.to(roomId).emit("messageRecieved", {firstName,text} );
+           } catch (error) {
+            console.error("socket error"+ error.message);
+           } 
+        
        })
        socket.on("disconnect",()=>{
        })
